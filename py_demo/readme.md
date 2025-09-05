@@ -15,7 +15,7 @@ mqtt_demo/
 ```bash
 pip install -r requirements.txt
 ```
-聪明的你当然可以使用anconda来管理本项目的环境
+聪明的你当然可以使用anaconda来管理本项目的环境
 ```bash
 conda create -n mqtt_demo python=3.8
 conda activate mqtt_demo

@@ -44,5 +44,9 @@
         test_camera()
     ``` 
 - 出现
-![alt text](picture/image.png)
+![alt text](picture/image0.png)
 择日再议，cao！本机运行是好的啊
+- 解决
+![alt text](picture/image1.png)
+由于窗口标题出现了中文，导致无法显示，改为英文即可
+**至此摄像头调试完成**

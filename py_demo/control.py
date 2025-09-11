@@ -1,7 +1,7 @@
 import time
 import paho.mqtt.client as mqtt
 
-BROKER = "test.mosquitto.org"
+BROKER = "172.20.10.7"
 PORT = 1883
 KEEPALIVE = 60
 

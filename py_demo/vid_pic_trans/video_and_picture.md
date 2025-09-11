@@ -209,7 +209,7 @@ if __name__ == "__main__":
 
 # test devices
 基于现有无服务器、无资金、无设备的“三无”条件，笔者要使用
-1. 公共 MQTT Broker：`broker.emqx.io`
+1. 公共 MQTT Broker：`broker.emqx.io` or 私有部署的 EMQX 服务器`http://192.168.239.129:18083`
 2. 私有 RTSP 服务器：`rtsp-simple-server`，部署于本人的虚拟机中
 3. 摄像头：笔者使用笔记本自带摄像头
 
@@ -268,6 +268,75 @@ if __name__ == "__main__":
 - 如果出现
 ![alt text](picture/image1.png)
 **即本机摄像头调试完成**
+
+## 部署MQTT服务器
+### 安装
+**按照[EMQX官方的“使用 Apt 包管理器安装”](https://docs.emqx.com/zh/emqx/latest/deploy/install-ubuntu.html)进行部署**
+其中要将
+```bash
+sudo apt-get install emqx
+```
+更改为
+```bash
+sudo apt-get install emqx-enterprise
+```
+这里也不知道为什么官方的包名称没有加上企业版，莫非有社区版？但是也没看到
+在启动EMQX服务后
+```bash
+sudo systemctl start emqx
+```
+### 测试
+- 通过浏览器访问 http://localhost:18083/（localhost 可替换为您的实际 IP 地址笔者虚拟机为http://192.168.239.129:18083/）以访问 EMQX Dashboard 管理控制台，进行设备连接与相关指标监控管理。
+
+- 默认用户名及密码：
+`admin`
+`public`
+- 初次登陆需要修改密码
+
+**出现**
+![alt text](picture/image.png)
+可见应该部署成功，但是目前为免费测试用，有如下提示：
+![alt text](picture/image2.png)
+- 停止服务使用
+```bash
+sudo systemctl stop emqx
+```
+
+## 部署RTSP服务器
+![alt text](picture/image4.png)
+### 安装
+- 安装 `mediamtx服务器（原rtsp-simple-server)`
+```bash
+wget https://github.com/bluenviron/mediamtx/releases/download/v1.9.3/mediamtx_v1.9.3_linux_amd64.tar.gz
+```
+- 解压
+```bash
+mkdir mediamtx1
+tar -xvzf /home/nacl/mediamtx_v1.9.3_linux_amd64.tar.gz -C /home/nacl/mediamtx1
+```
+- 运行
+```bash
+cd mediamtx1
+./mediamtx
+```
+**出现**
+```bash
+025/09/11 02:10:24 INF MediaMTX v1.9.3
+2025/09/11 02:10:24 INF configuration loaded from /home/nacl/mediamtx1/mediamtx.yml
+2025/09/11 02:10:24 INF [RTSP] listener opened on :8554 (TCP), :8000 (UDP/RTP), :8001 (UDP/RTCP)
+2025/09/11 02:10:24 INF [RTMP] listener opened on :1935
+2025/09/11 02:10:24 INF [HLS] listener opened on :8888
+2025/09/11 02:10:24 INF [WebRTC] listener opened on :8889 (HTTP), :8189 (ICE/UDP)
+2025/09/11 02:10:24 INF [SRT] listener opened on :8890 (UDP)
+^C2025/09/11 02:11:08 INF shutting down gracefully
+2025/09/11 02:11:08 INF [SRT] listener is closing
+2025/09/11 02:11:08 INF [WebRTC] listener is closing
+2025/09/11 02:11:08 INF [HLS] listener is closing
+2025/09/11 02:11:08 INF [RTMP] listener is closing
+2025/09/11 02:11:08 INF [RTSP] listener is closing
+2025/09/11 02:11:08 INF waiting for running hooks
+```
+即表示完成
 # TODO
 <!-- ✔️完成 -->
 | task | status |

@@ -219,6 +219,16 @@ if __name__ == "__main__":
 - 虚拟机开启`rtsp-simple-server`，监听RTSP请求
 
 # 部署
+需要先安装 Paho MQTT Python 库，可以使用 pip：
+```bash
+pip install -r requirements.txt
+```
+聪明的你当然可以使用anaconda来管理本项目的环境
+```bash
+conda create -n mqtt_demo python=3.8
+conda activate mqtt_demo
+pip install -r requirements.txt
+```
 ## 配置虚拟摄像头
 - 终端中安装opencv
     ```bash

@@ -6,12 +6,12 @@ import subprocess
 import signal
 import os
 
-BROKER = "test.mosquitto.org"   # 公共测试服务器，后续换成云端 IP
+BROKER = "192.168.239.129"   # 测试服务器，后续换成云端 IP
 PORT = 1883
 KEEPALIVE = 60
 
 # 推流目标地址（假设你的 RTSP 服务器在本地或云端 8554 端口）
-RTSP_URL = "rtsp://127.0.0.1:8554/dog001"
+RTSP_URL = "rtsp://192.168.239.129:8554/dog001"
 
 ffmpeg_process = None  # 保存 ffmpeg 子进程句柄
 
@@ -28,12 +28,13 @@ def start_ffmpeg_stream():
     # Windows 摄像头: dshow -i video="你的摄像头名称"
     cmd = [
         "ffmpeg",
-        "-f", "v4l2",          # Linux 摄像头输入
-        "-i", "/dev/video0",   # 摄像头设备路径
-        "-s", "640x360",       # 分辨率
-        "-b:v", "800k",        # 码率
-        "-f", "rtsp",          # 输出格式
-        RTSP_URL               # 推流地址
+        "-f", "v4l2",
+        "-i", "/dev/video0",
+        "-s", "640x360",
+        "-c:v", "libx264",
+        "-preset", "ultrafast",
+        "-f", "rtsp",
+        RTSP_URL
     ]
 
     try:
@@ -78,7 +79,7 @@ def on_message(client, userdata, msg):
 
 
 def main():
-    client = mqtt.Client("robot001")
+    client = mqtt.Client(client_id="robot001",callback_api_version=mqtt.CallbackAPIVersion.VERSION1)
     client.on_message = on_message
 
     print("[机器人] 连接到 MQTT Broker...")

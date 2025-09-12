@@ -20,7 +20,7 @@ def test_camera():
             break
         
         # 显示画面
-        cv2.imshow('摄像头测试 (按q退出)', frame)
+        cv2.imshow('camera test (q to qiut)', frame)
         
         # 等待1毫秒，如果按下'q'键则退出循环
         if cv2.waitKey(1) == ord('q'):

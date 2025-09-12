@@ -339,7 +339,7 @@ nacl@ubuntu:~$ sudo systemctl start emqx
 ![alt text](picture/image.png)
 可见应该部署成功，但是目前为免费测试用，似乎连接数量有限制。
 
-## 部署RTSP服务器
+# 部署RTSP服务器
 - 安装 `mediamtx服务器（原rtsp-simple-server)`（
 ```bash
 wget https://github.com/bluenviron/mediamtx/releases/download/v1.9.3/mediamtx_v1.9.3_linux_amd64.tar.gz
@@ -373,3 +373,81 @@ cd mediamtx1
 ```
 似乎完成
 如需开机自启动，请参照[这篇文章的后半段](https://blog.csdn.net/m0_74279129/article/details/146427145)
+
+# 配置ffmpeg
+参考[这篇文章](https://blog.csdn.net/qq_40280673/article/details/141224731)
+
+# 整体应用
+1. 打开MQTT服务器
+```bash
+sudo systemctl start emqx
+```
+- 在控制台浏览器中输入[192.168.239.129:18083](192.168.239.129:18083)即可监控当前MQTT服务器状态
+2. 打开RTSP服务器
+  - 新建一个终端，进入到mediamtx文件夹，打开服务
+  ```bash
+  cd mediamtx1
+  ./mediamtx
+  ```
+3. 配置各个服务器在py文件中的地址以及端口
+4. 运行robot.py出现
+nacl@ubuntu:~/01car$ /bin/python3 /home/nacl/01car/trans/vid_pic_trans/robot.py
+Traceback (most recent call last):
+  File "/home/nacl/01car/trans/vid_pic_trans/robot.py", line 98, in <module>
+    main()
+  File "/home/nacl/01car/trans/vid_pic_trans/robot.py", line 81, in main
+    client = mqtt.Client("robot001")
+  File "/home/nacl/.local/lib/python3.8/site-packages/paho/mqtt/client.py", line 772, in __init__
+    raise ValueError(
+ValueError: Unsupported callback API version: version 2.0 added a callback_api_version, see docs/migrations.rst for details
+- 查阅资料后发现
+从 paho-mqtt 2.0 开始，官方修改了 mqtt.Client() 构造函数的 API：
+  - 旧版本：
+  ```python
+  client = mqtt.Client("robot001")
+  ```
+  可以直接传一个字符串作为客户端ID
+  - 新版本（2.0+）
+  需要指定 `callback_api_version`，默认使用 V2 回调签名（和之前不兼容）
+- 解决：
+在创建客户端时添加参数：
+```python
+client = mqtt.Client(client_id="robot001", callback_api_version=mqtt.CallbackAPIVersion.VERSION1)
+```
+5. 运行robot.py
+```
+nacl@ubuntu:~/01car$ /bin/python3 /home/nacl/01car/trans/vid_pic_trans/robot.py
+/home/nacl/01car/trans/vid_pic_trans/robot.py:83: DeprecationWarning: Callback API version 1 is deprecated, update to latest version
+  client = mqtt.Client(client_id="robot001",callback_api_version=mqtt.CallbackAPIVersion.VERSION1)
+[机器人] 连接到 MQTT Broker...
+```
+似乎正常
+6. 运行control.py
+```bash
+(base) PS F:\Workspace\ZJXC\communicating> & E:/Anaconda3_2024.06/python.exe f:/Workspace/ZJXC/communicating/py_demo/vid_pic_trans/control.py
+f:\Workspace\ZJXC\communicating\py_demo\vid_pic_trans\control.py:64: DeprecationWarning: Callback API version 1 is deprecated, update to latest version
+  client = mqtt.Client(client_id="control001",callback_api_version=mqtt.CallbackAPIVersion.VERSION1)
+[控制中心] 连接到 MQTT Broker...
+[控制中心] 收到机器人 RTSP 地址: rtsp://192.168.239.129:8554/dog001
+[rtsp @ 000002ae944f3000] method DESCRIBE failed: 404 Not Found
+[错误] 无法打开 RTSP 流: rtsp://192.168.239.129:8554/dog001
+```
+**无法打开推流地址**
+但用
+```bash
+nacl@ubuntu:~$ ffplay rtsp://127.0.0.1:8554/dog001^C
+```
+本地回环可以得到画面
+**chatgpt告诉我是：**
+```
+结合你现在的情况，很可能是 网络层面的问题：
+
+Windows 客户端无法访问 Linux IP
+
+Windows 用的是 192.168.239.1，Linux 推流端是 192.168.239.129。
+
+如果是在虚拟机里跑 Linux，要确保网络设置是 桥接模式 或 Host-Only，这样 Windows 才能直接访问 Linux IP。
+
+NAT 模式下，外部 Windows 默认访问不到虚拟机内部 IP
+```
+拍照正常

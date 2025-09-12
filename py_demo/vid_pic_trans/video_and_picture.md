@@ -337,11 +337,54 @@ cd mediamtx1
 2025/09/11 02:11:08 INF waiting for running hooks
 ```
 即表示完成
+
+# 运行
+## 打开MQTT服务器
+```bash
+sudo systemctl start emqx
+```
+- 在控制台浏览器中输入[192.168.239.129:18083](192.168.239.129:18083)即可监控当前MQTT服务器状态
+## 打开RTSP服务器
+  - 新建一个终端，进入到mediamtx文件夹，打开服务
+  ```bash
+  cd mediamtx1
+  ./mediamtx
+  ```
+## 配置各个服务器在py文件中的地址以及端口
+将各个地址改成你自己的服务器
+
+## 先后运行`robot.py`和`control.py`
+经2025.9.12测试，传输照片功能正常
+**但视频传输会有**
+```
+[控制中心] 连接到 MQTT Broker...
+[控制中心] 收到机器人 RTSP 地址: rtsp://192.168.239.129:8554/dog001
+[rtsp @ 000002ae944f3000] method DESCRIBE failed: 404 Not Found
+[错误] 无法打开 RTSP 流: rtsp://192.168.239.129:8554/dog001
+```
+**无法打开推流地址**
+但用
+```bash
+nacl@ubuntu:~$ ffplay rtsp://127.0.0.1:8554/dog001
+```
+本地回环可以得到画面
+**chatgpt告诉我是：**
+```
+结合你现在的情况，很可能是 网络层面的问题：
+
+Windows 客户端无法访问 Linux IP
+
+Windows 用的是 192.168.239.1，Linux 推流端是 192.168.239.129。
+
+如果是在虚拟机里跑 Linux，要确保网络设置是 桥接模式 或 Host-Only，这样 Windows 才能直接访问 Linux IP。
+
+NAT 模式下，外部 Windows 默认访问不到虚拟机内部 IP
+```
 # TODO
 <!-- ✔️完成 -->
 | task | status |
 |---|---|
 |机器狗摄像头模拟|✔️完成|
-|RTSP服务器部署|未完成|
-|机器狗ffmpeg推流|未完成|
+|RTSP服务器部署|✔️完成|
+|机器狗ffmpeg推流|✔️完成|
 
